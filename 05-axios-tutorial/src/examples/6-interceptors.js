@@ -1,16 +1,36 @@
-import { useEffect } from 'react';
+import axios from "axios";
 
-const url = 'https://course-api.com/react-store-products';
+const authFetch = axios.create({
+  baseURL: "https://course-api.com",
+});
 
-const Interceptors = () => {
-  const fetchData = async () => {
-    console.log('axios interceptors');
-  };
+authFetch.interceptors.request.use(
+  (request) => {
+    // old version
+    // request.headers.common['Accept'] = 'application/json';
+    request.headers["Accept"] = "application/json";
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+    console.log("request sent");
+    return request;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-  return <h2 className='text-center'>interceptors</h2>;
-};
-export default Interceptors;
+authFetch.interceptors.response.use(
+  (response) => {
+    console.log("got response");
+    return response;
+  },
+  (error) => {
+    console.log(error.response);
+    if (error.response.status === 404) {
+      // do something
+      console.log("NOT FOUND");
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default authFetch;
